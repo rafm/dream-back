@@ -14,6 +14,12 @@ class Course extends Model {
 
         return this;
     }
+
+    static associate(models) {
+        this.belongsToMany(models.Technology, {
+            through: 'course_technology',
+        });
+    }
 }
 
 export default Course;

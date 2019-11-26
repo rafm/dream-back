@@ -17,6 +17,12 @@ class Opportunity extends Model {
 
         return this;
     }
+
+    static associate(models) {
+        this.belongsToMany(models.Technology, {
+            through: 'opportunity_technology',
+        });
+    }
 }
 
 export default Opportunity;
