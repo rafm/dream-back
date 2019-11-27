@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import Opportunity from '../models/Opportunity';
+import Technology from '../models/Technology';
 
 class OpportunityController {
     async index(request, response) {
@@ -20,13 +21,26 @@ class OpportunityController {
             where: { canceled_at: null },
             offset: (page - 1) * 20,
             limit: 20,
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
         });
 
         return response.json(opportunities);
     }
 
     async find(request, response) {
-        const opportunity = await Opportunity.findByPk(request.params.id);
+        const opportunity = await Opportunity.findByPk(request.params.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         if (!opportunity) {
             return response
@@ -58,6 +72,9 @@ class OpportunityController {
                     .integer()
                     .required()
                     .min(1),
+                technologies: Yup.array()
+                    .min(1)
+                    .of(Yup.number().integer()),
             });
 
         if (!schema.isValidSync(request.body)) {
@@ -66,7 +83,18 @@ class OpportunityController {
 
         const createOpportunityRequest = schema.cast(request.body);
 
-        const opportunity = await Opportunity.create(createOpportunityRequest);
+        let opportunity = await Opportunity.create(createOpportunityRequest);
+        await opportunity.addTechnologies(
+            createOpportunityRequest.technologies
+        );
+        opportunity = await Opportunity.findByPk(opportunity.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         return response.json(opportunity);
     }
@@ -85,6 +113,9 @@ class OpportunityController {
                 remuneration: Yup.number()
                     .integer()
                     .min(1),
+                technologies: Yup.array()
+                    .min(1)
+                    .of(Yup.number().integer()),
             });
 
         if (!schema.isValidSync(request.body)) {
@@ -99,13 +130,35 @@ class OpportunityController {
                 .json({ error: 'Opportunity does not exist' });
         }
 
-        const updatedOpportunity = await opportunity.update(request.body);
+        const updateOpportunityRequest = schema.cast(request.body);
+
+        let updatedOpportunity = await opportunity.update(
+            updateOpportunityRequest
+        );
+        await updatedOpportunity.setTechnologies(
+            updateOpportunityRequest.technologies
+        );
+        updatedOpportunity = await Opportunity.findByPk(updatedOpportunity.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         return response.json(updatedOpportunity);
     }
 
     async delete(request, response) {
-        const opportunity = await Opportunity.findByPk(request.params.id);
+        const opportunity = await Opportunity.findByPk(request.params.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         if (!opportunity) {
             return response

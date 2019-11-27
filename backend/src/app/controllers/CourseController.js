@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import Course from '../models/Course';
+import Technology from '../models/Technology';
 
 class CourseController {
     async index(request, response) {
@@ -20,13 +21,26 @@ class CourseController {
             where: { canceled_at: null },
             offset: (page - 1) * 20,
             limit: 20,
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
         });
 
         return response.json(courses);
     }
 
     async find(request, response) {
-        const course = await Course.findByPk(request.params.id);
+        const course = await Course.findByPk(request.params.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         if (!course) {
             return response
@@ -48,15 +62,9 @@ class CourseController {
                     .integer()
                     .required()
                     .min(1),
-                // technologies: Yup.array()
-                //     .min(1)
-                //     .of(
-                //         // TODO validate: at least one value / not empty
-                //         Yup.object().shape({
-                //             id: Yup.number().integer(),
-                //             name: Yup.string().min(3),
-                //         })
-                //     ),
+                technologies: Yup.array()
+                    .min(1)
+                    .of(Yup.number().integer()),
             });
 
         if (!schema.isValidSync(request.body)) {
@@ -65,7 +73,16 @@ class CourseController {
 
         const createCourseRequest = schema.cast(request.body);
 
-        const course = await Course.create(createCourseRequest);
+        let course = await Course.create(createCourseRequest);
+        await course.addTechnologies(createCourseRequest.technologies);
+        course = await Course.findByPk(course.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         return response.json(course);
     }
@@ -79,6 +96,9 @@ class CourseController {
                 duration: Yup.number()
                     .integer()
                     .min(1),
+                technologies: Yup.array()
+                    .min(1)
+                    .of(Yup.number().integer()),
             });
 
         if (!schema.isValidSync(request.body)) {
@@ -93,13 +113,31 @@ class CourseController {
                 .json({ error: 'Course does not exist' });
         }
 
-        const updatedCourse = await course.update(request.body);
+        const updateCourseRequest = schema.cast(request.body);
+
+        let updatedCourse = await course.update(updateCourseRequest);
+        await updatedCourse.setTechnologies(updateCourseRequest.technologies);
+        updatedCourse = await Course.findByPk(updatedCourse.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         return response.json(updatedCourse);
     }
 
     async delete(request, response) {
-        const course = await Course.findByPk(request.params.id);
+        const course = await Course.findByPk(request.params.id, {
+            include: [
+                {
+                    model: Technology,
+                    as: 'technologies',
+                },
+            ],
+        });
 
         if (!course) {
             return response
