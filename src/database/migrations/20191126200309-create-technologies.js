@@ -12,6 +12,9 @@ module.exports = {
                 allowNull: false,
                 unique: true,
             },
+            canceled_at: {
+                type: Sequelize.DATE,
+            },
             created_at: {
                 allowNull: false,
                 type: Sequelize.DATE,
