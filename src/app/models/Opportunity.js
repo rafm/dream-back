@@ -9,6 +9,7 @@ class Opportunity extends Model {
                 estimated_duration: Sequelize.INTEGER,
                 company_name: Sequelize.STRING,
                 remuneration: Sequelize.INTEGER,
+                canceled_at: Sequelize.DATE,
             },
             {
                 sequelize,
@@ -21,6 +22,7 @@ class Opportunity extends Model {
     static associate(models) {
         this.belongsToMany(models.Technology, {
             through: 'opportunity_technology',
+            as: 'technologies',
         });
     }
 }

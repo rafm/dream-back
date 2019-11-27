@@ -5,6 +5,7 @@ class Technology extends Model {
         super.init(
             {
                 name: Sequelize.STRING,
+                canceled_at: Sequelize.DATE,
             },
             {
                 sequelize,

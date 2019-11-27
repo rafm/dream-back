@@ -6,6 +6,7 @@ class Course extends Model {
             {
                 name: Sequelize.STRING,
                 duration: Sequelize.INTEGER,
+                canceled_at: Sequelize.DATE,
             },
             {
                 sequelize,
@@ -18,6 +19,7 @@ class Course extends Model {
     static associate(models) {
         this.belongsToMany(models.Technology, {
             through: 'course_technology',
+            as: 'technologies',
         });
     }
 }
