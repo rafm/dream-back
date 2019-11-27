@@ -1,0 +1,2 @@
+# Hackaton - Dream
+Projeto com o objetivo de unir empresas e instituições de ensino em um modelo de aprendizado rápido, prático e gratuito focado em apresentar e introduzir jovens do ensino médio no mercado de programação. Neste modelo de negócio, as empresas oferecerão trabalho remoto alinhado com o nível de aprendizado dos alunos, as instituições de ensino receberão parte do salário dos alunos dos primeiros X trabalhos que eles realizarem com as empresas parceiras, justificando o investimento financeiro nos cursos oferecidos.
